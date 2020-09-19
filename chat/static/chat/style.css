@@ -1,0 +1,14 @@
+body {
+    padding-left: 15px;
+}
+
+h1 {
+    color: #000000;
+    font-family: 'serif';
+}
+
+p  {
+    color: #007BE7;
+    font-family: 'Lobster';
+    font-size: 14pt;
+}
