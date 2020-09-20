@@ -33,9 +33,10 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     # My Own Apps
-    'chat',
+    'chat.apps.ChatConfig',
     'channels',
     'polls.apps.PollsConfig',
+    'users.apps.UsersConfig',
     
     # Default Apps
     'django.contrib.admin',
@@ -61,7 +62,7 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [str(BASE_DIR.joinpath('templates'))],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -142,3 +143,6 @@ CHANNEL_LAYERS = {
 # Login/Logout Redirect
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# Custom User Model
+AUTH_USER_MODEL = 'users.CustomUser'

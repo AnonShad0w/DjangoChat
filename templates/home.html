@@ -11,6 +11,7 @@
 </header>
 {% else %}
   <p>You are not logged in</p>
-  <a href="{% url 'login' %}">Log In</a>
+  <a href="{% url 'login' %}">Log In</a> |
+  <a class="nav-link" href="{% url 'users:signup' %}">Sign Up</a>
 {% endif %}
 {% endblock %}
