@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'chat/style.css' %}">
 </head>
 <body>
-    <textarea id="chat-log" class="form-control" cols="100" rows="20"></textarea><br>
+    <textarea id="chat-log" class="form-control" cols="100" rows="20" readonly></textarea><br>
     <input id="chat-message-input" class="form-control" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     {{ room_name|json_script:"room-name" }}
@@ -24,7 +24,8 @@
             + roomName
             + '/'
         );
-
+        
+        // When a message is received from the server
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log(data);

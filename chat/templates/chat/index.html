@@ -12,7 +12,8 @@
 </head>
 <body>
     <div>
-      <h1 class="text-center">Hi {{ user }}! What chat room would you like to enter?<br></h1>
+        <! -- user is a context processor -- !>
+      <h1 class="text-center">Hi {{ request.user }}! What chat room would you like to enter?<br></h1>
       <input id="room-name-input" class="form-control" type="text"><br>
     </div>
     <input id="room-name-submit" type="button" value="Enter">
