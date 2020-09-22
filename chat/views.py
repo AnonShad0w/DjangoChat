@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
+
 
 from .models import Room
 
@@ -9,7 +10,3 @@ def index(request):
 
 def room(request, room_name):
 	return render(request, 'chat/room.html', {'room_name': room_name})
-
-def chat_app_user(request):
-	chat_user = request.user.username()
-	return render(request, 'chat/room.html', {'chat_user': chat_user})
