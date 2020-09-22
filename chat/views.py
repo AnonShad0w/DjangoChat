@@ -9,3 +9,7 @@ def index(request):
 
 def room(request, room_name):
 	return render(request, 'chat/room.html', {'room_name': room_name})
+
+def chat_app_user(request):
+	chat_user = request.user.username()
+	return render(request, 'chat/room.html', {'chat_user': chat_user})
