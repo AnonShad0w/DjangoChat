@@ -1,7 +1,7 @@
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
-class ChatConsumer(AsyncWebsocketConsumer):
+class ChatConsumer(AsyncJsonWebsocketConsumer):
         
     # WebSocket event handlers    
     async def connect(self):
@@ -36,23 +36,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
     
     # Receive message from WebSocket
-    async def receive(self, text_data):
+    async def receive_json(self, content):
             
         username = self.scope["user"].username
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        message = (username + ': ' + message)
+        message = content['message']
+        print("this is the content " + str(content))
         
-        print(text_data)
-        print(message)
-        
-        # Send message to room group
+        # Send message to room group (the event)
         await self.channel_layer.group_send(
             self.room_group_name,
             {
-                'type': 'chat_message',
+                'type': 'chat.message',
                 'message': message,
-                'username': self.scope["user"].username,
+                'username': username,
             }
         )
 
@@ -64,12 +60,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         username = self.scope["user"].username
         message = event['message']
         username = event['username']
-
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps(
+        print("this is the event " + str(event)) # prints in terminal for each open websocket
+        
+        # Send message to WebSocket seen in browswer console
+        await self.send_json(
             {
                 'message': message,
                 'username': username,
                 'client': self.scope['client'],
-            })
+                'room': self.room_group_name,
+            },
         )

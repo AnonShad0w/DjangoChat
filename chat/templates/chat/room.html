@@ -29,7 +29,7 @@
             // Decode the JSON
             var data = JSON.parse(e.data);
             console.log(data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            document.querySelector('#chat-log').value += (data.username + ': ' + data.message + '\n');
         };
 
         // Debugging info for web console
@@ -52,7 +52,8 @@
             var messageInputDom = document.querySelector('#chat-message-input');
             var message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'command': 'send',
+                'message': message,
             }));
             messageInputDom.value = '';
         };
