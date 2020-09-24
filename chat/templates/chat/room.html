@@ -11,7 +11,7 @@
 </head>
 <body>
     <textarea id="chat-log" class="form-control" cols="100" rows="20" readonly></textarea><br>
-    <div class="actionOutput" id="keyboarding"></div>
+    <div class="actionOutput"><p id="keyboarding"></p></div>
     <input id="chat-message-input" class="form-control" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     {{ room_name|json_script:"room-name" }}
@@ -36,9 +36,12 @@
                 msg = data.username + data.message + '\n';
             }
             
-            else {
+            else if (data.action === 'keyboarding' && data.event === 'typing') {
                 msg = data.username + ': ' + data.message + '\n';
             }
+            
+            else
+                return;
             document.querySelector('#chat-log').value += msg;
         
             // Typing response action
@@ -66,14 +69,14 @@
         // typing timer handling
         var typingTimer;
         input.onkeydown = function(e) {
-            console.log(typingTimer);
+            //console.log(typingTimer);
             if (typingTimer) {
                 clearTimeout(typingTimer);
                 
                 typingTimer = setTimeout(function() {
                     chatSocket.send(JSON.stringify({ // to consumer.py as the content
                         'type': 'stopKeyboarding',
-                        'message': 'stopped typing',
+                        //'message': 'stopped typing',
                     }));
                 }, 3000)
                 
@@ -83,14 +86,14 @@
             chatSocket.send(JSON.stringify( // to consumer.py as the content
             {
                 'type': 'keyboarding',
-                'message': 'is typing',
+                //'message': 'is typing',
             }));
             
             typingTimer = setTimeout(function() {
                 chatSocket.send(JSON.stringify( // to consumer.py as the content
                 {
                     'type': 'stopKeyboarding',
-                    'message': 'stopped typing',
+                    //'message': 'stopped typing',
                 }));
             }, 3000);
             
