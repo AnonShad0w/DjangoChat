@@ -11,6 +11,7 @@
 </head>
 <body>
     <textarea id="chat-log" class="form-control" cols="100" rows="20" readonly></textarea><br>
+    <div class="actionOutput" id="keyboarding"></div>
     <input id="chat-message-input" class="form-control" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     {{ room_name|json_script:"room-name" }}
@@ -29,7 +30,7 @@
             // Decode the JSON
             var data = JSON.parse(e.data);
             console.log(data);
-            
+            // If chat consumer joins or leaves the channel, a broadcast message sends
             let msg;
             if (data.action === 'join' || data.action === 'leave') {
                 msg = data.username + data.message + '\n';
@@ -39,19 +40,66 @@
                 msg = data.username + ': ' + data.message + '\n';
             }
             document.querySelector('#chat-log').value += msg;
-        };
-
-        document.querySelector('#chat-message-input').focus();
-        document.querySelector('#chat-message-input').onkeyup = function(e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.querySelector('#chat-message-submit').click();
+        
+            // Typing response action
+            if (data.action) {
+                var typingElem = document.getElementById('keyboarding');
+                if (data.action === 'keyboarding') {
+                    typingElem.innerHTML = data.username + ' is typing...';
+                }
+                else if (data.action === 'stopKeyboarding') {
+                    typingElem.innerHTML = '';
+                }
             }
         };
+        
+        var input = document.querySelector('#chat-message-input');
+        var submitBtn = document.querySelector('#chat-message-submit');
+        
+        input.focus();
+        input.onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                submitBtn.click();
+            }
+        };
+        
+        // typing timer handling
+        var typingTimer;
+        input.onkeydown = function(e) {
+            console.log(typingTimer);
+            if (typingTimer) {
+                clearTimeout(typingTimer);
+                
+                typingTimer = setTimeout(function() {
+                    chatSocket.send(JSON.stringify({ // to consumer.py as the content
+                        'type': 'stopKeyboarding',
+                        'message': 'stopped typing',
+                    }));
+                }, 3000)
+                
+                return
+            }
+            
+            chatSocket.send(JSON.stringify( // to consumer.py as the content
+            {
+                'type': 'keyboarding',
+                'message': 'is typing',
+            }));
+            
+            typingTimer = setTimeout(function() {
+                chatSocket.send(JSON.stringify( // to consumer.py as the content
+                {
+                    'type': 'stopKeyboarding',
+                    'message': 'stopped typing',
+                }));
+            }, 3000);
+            
+        }
 
-        document.querySelector('#chat-message-submit').onclick = function(e) {
+        submitBtn.onclick = function(e) {
             var messageInputDom = document.querySelector('#chat-message-input');
             var message = messageInputDom.value;
-            chatSocket.send(JSON.stringify({
+            chatSocket.send(JSON.stringify({ // to consumer.py
                 'command': 'send',
                 'message': message,
             }));

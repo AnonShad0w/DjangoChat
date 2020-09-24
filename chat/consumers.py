@@ -60,18 +60,28 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def receive_json(self, content):
             
         username = self.scope["user"].username
-        message = content['message']
         print("this is the content " + str(content))
         
-        # Send message to room group (the event)
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat.message',
-                'message': message,
-                'username': username,
-            }
-        )
+        if content.get('type', None):
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat.typing',
+                    'action': content['type'],
+                    'username': username,
+                }
+            )
+        else:
+            # Send message to room group (the event)
+            message = content['message']
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat.message',
+                    'message': message,
+                    'username': username,
+                }
+            )
 
 # Handlers for messages sent over the channel layer
 
@@ -90,6 +100,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 'username': username,
                 'client': self.scope['client'],
                 'room': self.room_group_name,
+                'action': 'keyboarding',
             },
         )
     
@@ -126,5 +137,21 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 'client': self.scope['client'],
                 'room': self.room_group_name,
                 'action': 'leave',
+            },
+        )
+
+    async def chat_typing(self, event):
+        action = event['action']
+        typing = event['type']
+        username = event['username']
+        print("typing chat event " + str(event)) # prints in terminal for each open websocket
+        
+        # Send message to WebSocket seen in browswer console
+        await self.send_json(
+            {
+                'username': username,
+                'client': self.scope['client'],
+                'room': self.room_group_name,
+                'action': action,
             },
         )
