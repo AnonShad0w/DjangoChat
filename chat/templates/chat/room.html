@@ -11,7 +11,7 @@
 </head>
 <body>
     <textarea id="chat-log" class="form-control" cols="100" rows="20" readonly></textarea><br>
-    <div class="actionOutput"><p id="keyboarding"></p></div>
+    <div class="typingNotifier"><p id="keyboarding"></p></div>
     <input id="chat-message-input" class="form-control" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     {{ room_name|json_script:"room-name" }}
@@ -34,25 +34,26 @@
             let msg;
             if (data.action === 'join' || data.action === 'leave') {
                 msg = data.username + data.message + '\n';
+                document.querySelector('#chat-log').value += msg;
             }
             
-            else if (data.action === 'keyboarding' && data.event === 'typing') {
+            else if (data.action === 'keyboarding' && data.event === 'sentMsg') {
                 msg = data.username + ': ' + data.message + '\n';
+                document.querySelector('#chat-log').value += msg;
             }
-            
-            else
-                return;
-            document.querySelector('#chat-log').value += msg;
         
-            // Typing response action
+            // Typing notification event
             if (data.action) {
+                console.log('outer if notification event')
                 var typingElem = document.getElementById('keyboarding');
                 if (data.action === 'keyboarding') {
                     typingElem.innerHTML = data.username + ' is typing...';
+                    console.log('inner if notification event')
                 }
                 else if (data.action === 'stopKeyboarding') {
                     typingElem.innerHTML = '';
-                }
+                    console.log('inner else if notification event')
+                } 
             }
         };
         
@@ -64,7 +65,7 @@
             if (e.keyCode === 13) {  // enter, return
                 submitBtn.click();
             }
-        };
+        }
         
         // typing timer handling
         var typingTimer;
@@ -80,7 +81,7 @@
                     }));
                 }, 3000)
                 
-                return
+                return;
             }
             
             chatSocket.send(JSON.stringify( // to consumer.py as the content
@@ -95,9 +96,9 @@
                     'type': 'stopKeyboarding',
                     //'message': 'stopped typing',
                 }));
-            }, 3000);
+            }, 3000)
             
-        }
+        };
 
         submitBtn.onclick = function(e) {
             var messageInputDom = document.querySelector('#chat-message-input');

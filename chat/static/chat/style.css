@@ -12,3 +12,9 @@ p  {
     font-family: 'Lobster';
     font-size: 14pt;
 }
+
+.typingNotifier {
+    height: 12px;
+    font-size: 12px;
+    margin-bottom: 10px;
+}

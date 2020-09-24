@@ -102,7 +102,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 'client': self.scope['client'],
                 'room': self.room_group_name,
                 'action': 'keyboarding',
-                'event': 'typing',
+                'event': 'sentMsg',
             },
         )
     
