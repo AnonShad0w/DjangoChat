@@ -31,19 +31,14 @@
             console.log(data);
             
             let msg;
-            if (data.action) msg = data.username + ' ' + data.action + '\n';
-            else
+            if (data.action === 'join' || data.action === 'leave') {
+                msg = data.username + data.message + '\n';
+            }
+            
+            else {
                 msg = data.username + ': ' + data.message + '\n';
+            }
             document.querySelector('#chat-log').value += msg;
-        };
-
-        // Debugging info for web console
-        chatSocket.onopen = function(e) {
-            console.log('Connected to chat socket');
-        };
-        
-        chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
         };
 
         document.querySelector('#chat-message-input').focus();
@@ -61,6 +56,15 @@
                 'message': message,
             }));
             messageInputDom.value = '';
+        };
+        
+        // Debugging info for web console
+        chatSocket.onopen = function(e) {
+            console.log('Connected to chat socket');
+        };
+        
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
         };
     </script>
 </body>

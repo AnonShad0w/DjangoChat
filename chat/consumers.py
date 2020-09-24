@@ -31,7 +31,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_send(
             self.room_group_name,
             {
-                'type': 'action.handler',
+                'type': 'chat.join',
                 'action': 'join',
                 'username': username,
             }
@@ -44,7 +44,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_send(
             self.room_group_name,
             {
-                'type': 'action.handler',
+                'type': 'chat.leave',
                 'action': 'leave',
                 'username': username,
             }
@@ -93,18 +93,38 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             },
         )
     
-    async def action_handler(self, event):
+    async def chat_join(self, event):
         
         action = event['action']
+        message = ' has joined the chat'
         username = event['username']
-        print("action handler event " + str(event)) # prints in terminal for each open websocket
+        print("join chat event " + str(event)) # prints in terminal for each open websocket
         
         # Send message to WebSocket seen in browswer console
         await self.send_json(
             {
-                'action': action,
+                'message': message,
                 'username': username,
                 'client': self.scope['client'],
                 'room': self.room_group_name,
+                'action': 'join',
+            },
+        )
+
+    async def chat_leave(self, event):
+        
+        action = event['action']
+        message = ' has left the chat'
+        username = event['username']
+        print("left chat event " + str(event)) # prints in terminal for each open websocket
+        
+        # Send message to WebSocket seen in browswer console
+        await self.send_json(
+            {
+                'message': message,
+                'username': username,
+                'client': self.scope['client'],
+                'room': self.room_group_name,
+                'action': 'leave',
             },
         )
