@@ -29,7 +29,12 @@
             // Decode the JSON
             var data = JSON.parse(e.data);
             console.log(data);
-            document.querySelector('#chat-log').value += (data.username + ': ' + data.message + '\n');
+            
+            let msg;
+            if (data.action) msg = data.username + ' ' + data.action + '\n';
+            else
+                msg = data.username + ': ' + data.message + '\n';
+            document.querySelector('#chat-log').value += msg;
         };
 
         // Debugging info for web console

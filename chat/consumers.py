@@ -28,7 +28,28 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             self.channel_name
         )
         
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'action.handler',
+                'action': 'join',
+                'username': username,
+            }
+        )
+        
     async def disconnect(self, close_code):
+        
+        username = self.scope['user'].username
+        
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'action.handler',
+                'action': 'leave',
+                'username': username,
+            }
+        )
+                
         # Leave room group
         await self.channel_layer.group_discard(
             self.room_group_name,
@@ -60,12 +81,28 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         username = self.scope["user"].username
         message = event['message']
         username = event['username']
-        print("this is the event " + str(event)) # prints in terminal for each open websocket
+        print("message event " + str(event)) # prints in terminal for each open websocket
         
         # Send message to WebSocket seen in browswer console
         await self.send_json(
             {
                 'message': message,
+                'username': username,
+                'client': self.scope['client'],
+                'room': self.room_group_name,
+            },
+        )
+    
+    async def action_handler(self, event):
+        
+        action = event['action']
+        username = event['username']
+        print("action handler event " + str(event)) # prints in terminal for each open websocket
+        
+        # Send message to WebSocket seen in browswer console
+        await self.send_json(
+            {
+                'action': action,
                 'username': username,
                 'client': self.scope['client'],
                 'room': self.room_group_name,
