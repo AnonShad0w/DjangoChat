@@ -31,7 +31,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.0.26', 'raspberrypi']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.0.26']
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'channels',
     'polls.apps.PollsConfig',
     'users.apps.UsersConfig',
+    'blog.apps.BlogConfig',
     
     # Default Apps
     'django.contrib.admin',
@@ -120,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Los_Angeles'
 
 USE_I18N = True
 

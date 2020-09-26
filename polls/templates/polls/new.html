@@ -13,24 +13,21 @@
   <body>
     <div class="page-header">
         {% if user.is_authenticated %}
-        <a href="{% url 'polls:/question_id/new' %}" class="top-menu"><span class="glyphicon glyphicon-plus"></span></a>
+        <a href="{% url 'polls:new' %}" class="top-menu"><span class="glyphicon glyphicon-plus"></span></a>
         {% endif %}
         <h1><a href="{% url 'polls:index' %}">Question List</a></h1>
     </div>
-{% if latest_question_list %}
-    <ul>
-    {% for question in latest_question_list %}
-        <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No polls are available.</p>
-{% endif %}
     <div class="content container">
         <div class="row">
             <div class="col-md-8">
-            {% block content %}
-            {% endblock %}
+<h2>Add a new question:</h2>
+<form method="post" class="poll-form">
+  {% csrf_token %}
+  <!--{{ QInlineFormset.management_form }}-->
+  {{ form.as_p }}
+  {{ form2.as_p }}
+  <button type="submit" class="save btn btn-default">add question</button>
+</form>
             </div>
         </div>
     </div>

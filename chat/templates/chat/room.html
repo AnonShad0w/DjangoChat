@@ -5,15 +5,20 @@
 <head>
     <meta charset="utf-8"/>
     <title>Chat Room</title>
+    <header>
+    <p class="text-center">{{ room_name }} Chat Room</p>
+    </header>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'chat/style.css' %}">
 </head>
 <body>
     <textarea id="chat-log" class="form-control" cols="100" rows="20" readonly></textarea><br>
-    <div class="typingNotifier"><p id="keyboarding"></p></div>
+    <!--Typing Notifier-->
+    <div class="typingNotifier" style="height:30px"><p id="keyboarding"></p></div>
     <input id="chat-message-input" class="form-control" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
+    
     {{ room_name|json_script:"room-name" }}
     <script>
         var roomName = JSON.parse(document.getElementById('room-name').textContent);
@@ -27,6 +32,7 @@
         
         // When a message is received from the server
         chatSocket.onmessage = function(e) {
+            console.log('dfsdf');
             // Decode the JSON
             var data = JSON.parse(e.data);
             console.log(data);
@@ -44,15 +50,16 @@
         
             // Typing notification event
             if (data.action) {
-                console.log('outer if notification event')
+                //console.log('outer if notification event')
                 var typingElem = document.getElementById('keyboarding');
                 if (data.action === 'keyboarding') {
                     typingElem.innerHTML = data.username + ' is typing...';
-                    console.log('inner if notification event')
+                    // set css of typingElem invi : false
+                    //console.log('inner if notification event')
                 }
                 else if (data.action === 'stopKeyboarding') {
-                    typingElem.innerHTML = '';
-                    console.log('inner else if notification event')
+                    typingElem.innerHTML = ' ';
+                    //console.log('inner else if notification event')
                 } 
             }
         };
@@ -69,8 +76,8 @@
         
         // typing timer handling
         var typingTimer;
+        var timer;
         input.onkeydown = function(e) {
-            //console.log(typingTimer);
             if (typingTimer) {
                 clearTimeout(typingTimer);
                 
@@ -79,10 +86,16 @@
                         'type': 'stopKeyboarding',
                         //'message': 'stopped typing',
                     }));
-                }, 3000)
+                }, 1000)
+                
+                if (timer) clearTimeout(timer)
+                timer = setTimeout(function() {
+                    clearTimeout(typingTimer);
+                    typingTimer = undefined;
+                }, 1200)
                 
                 return;
-            }
+            };
             
             chatSocket.send(JSON.stringify( // to consumer.py as the content
             {

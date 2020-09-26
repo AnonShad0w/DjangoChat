@@ -21,7 +21,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         self.room_group_name = 'chat_%s' % self.room_name
         
         username = self.scope["user"].username
-        
+
         # Join room goup
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -55,7 +55,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-    
+        
     # Receive message from WebSocket
     async def receive_json(self, content):
             
