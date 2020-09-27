@@ -44,21 +44,23 @@ def vote(request, question_id):
         return render(request, 'polls/detail.html', {
             'question': question,
             'error_message': "You didn't select a choice.",
-            })
-    
-    if VoterSelection.objects.filter(choice=selected_choice,voter=user, question_id=question_id).exists():
-                return render(request, 'polls/detail.html', {
-            'question': question,
-            'error_message': "You already voted on this question.",
+        })
+    # check if the user voted on the question
+    if VoterSelection.objects.filter(voter=user, question_id=question_id).exists():
+        for choice in question.choice_set.all():
+            return render(request, 'polls/detail.html', {
+                'question': question,
+                'error_message': "You already voted on this question.\
+                                Please vote on a dfferent question.",
             })
     
     else:
         VoterSelection.objects.create(choice=selected_choice, voter=user, question_id=question_id)
         selected_choice.votes += 1
         selected_choice.save()
-    # Always return an HttpResponseRedirect after successfully dealing
-    # with POST data. This prevents data from being posted twice if a
-    # user hits the Back button.
+        # Always return an HttpResponseRedirect after successfully dealing
+        # with POST data. This prevents data from being posted twice if a
+        # user hits the Back button.
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
         
 def new_poll(request):

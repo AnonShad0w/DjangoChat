@@ -6,7 +6,11 @@ from .models import *
 class ChoiceInline(admin.TabularInline):
     model = Choice
     extra = 3
-
+"""
+class VoterSelectionInline(admin.ModelAdmin):
+    model = VoterSelection
+    fk_name = "voter"
+"""
 class QuestionAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['question_text']}),
