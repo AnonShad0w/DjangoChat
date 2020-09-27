@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
-from django.forms import modelformset_factory, formset_factory
+from django.forms import formset_factory
 from django.contrib.auth import get_user_model
 from django.conf import settings
 
@@ -65,10 +65,10 @@ def vote(request, question_id):
         
 def new_poll(request):
     ChoiceFormSet = formset_factory(ChoiceForm, extra=3, min_num=2, validate_min=True)
-    
     question_form = QuestionForm() # when a url is called initially it is GET method so you have to send a instance of form first (empty form)
     choice_form = ChoiceForm()
-
+    user = request.user
+    
     if request.method == 'POST':
         form = QuestionForm(request.POST or None)
         formset = ChoiceFormSet(request.POST or None, request.FILES)
@@ -87,6 +87,7 @@ def new_poll(request):
     tmpl_vars = {
         'formset': formset,
         'form': form,
+        'user': user,
     }
         
     return render(request, 'polls/new.html', tmpl_vars)
