@@ -3,9 +3,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
-from django.forms import inlineformset_factory
+from django.forms import modelformset_factory, formset_factory
+from django.contrib.auth import get_user_model
+from django.conf import settings
 
-from .models import Question, Choice
+from .models import Question, Choice, VoterSelection
 from .forms import *
 
 class IndexView(generic.ListView):
@@ -34,6 +36,7 @@ class ResultsView(generic.DetailView):
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
+    user = request.user
     try:
         selected_choice = question.choice_set.get(pk=request.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
@@ -42,31 +45,46 @@ def vote(request, question_id):
             'question': question,
             'error_message': "You didn't select a choice.",
             })
+    
+    if VoterSelection.objects.filter(choice=selected_choice,voter=user, question_id=question_id).exists():
+                return render(request, 'polls/detail.html', {
+            'question': question,
+            'error_message': "You already voted on this question.",
+            })
+    
     else:
+        VoterSelection.objects.create(choice=selected_choice, voter=user, question_id=question_id)
         selected_choice.votes += 1
         selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
+    # Always return an HttpResponseRedirect after successfully dealing
+    # with POST data. This prevents data from being posted twice if a
+    # user hits the Back button.
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
         
-def new_poll(request, question_id):
-    q = Question.objects.get(pk=question_id)
-    QuestionFormset = inlineformset_factory(Question, Choice, fields=('choice_text'),)
-    tmpl_vars = {
-        'form': QuestionForm(),
-        'form2': ChoiceForm(),
-    }
+def new_poll(request):
+    ChoiceFormSet = formset_factory(ChoiceForm, extra=3, min_num=2, validate_min=True)
     
-    formset = QuestionFormset() # when a url is called initially it is GET method so you have to send a instance of form first (empty form)
+    question_form = QuestionForm() # when a url is called initially it is GET method so you have to send a instance of form first (empty form)
+    choice_form = ChoiceForm()
+
     if request.method == 'POST':
-        formset = QuestionFormset(request.POST or None, instance=question)
-        if formset.is_valid():
-            new_poll = formset.save(commit=False)
-            new_poll.pub_date = timezone.localtime(timezone.now())
-            new_poll.save()
-            return redirect('polls:index', question_id=question.id)
-        else:
-            formset = QuestionFormset() # this will return the errors in your form
-            
-    return render(request, 'polls/new.html', {'formset':formset})
+        form = QuestionForm(request.POST or None)
+        formset = ChoiceFormSet(request.POST or None, request.FILES)
+        if form.is_valid() and formset.is_valid():
+            new_poll = form.save()
+            for inline_form in formset:
+                if inline_form.cleaned_data:
+                    choice = inline_form.save(commit=False)
+                    choice.question = new_poll
+                    choice.save()
+            return render(request, 'polls/index.html', {})
+    else:
+        form = QuestionForm() # this will return the errors in your form
+        formset = ChoiceFormSet()
+        
+    tmpl_vars = {
+        'formset': formset,
+        'form': form,
+    }
+        
+    return render(request, 'polls/new.html', tmpl_vars)

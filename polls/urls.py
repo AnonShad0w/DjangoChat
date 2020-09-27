@@ -9,5 +9,5 @@ urlpatterns = [
     path('<int:pk>/results/', views.ResultsView.as_view(), name='results'),
     path('<int:question_id>/vote/', views.vote, name='vote'),
     # page for adding a new poll
-    path('<int:question_id>/new/', views.new_poll, name='new'),
+    path('new/', views.new_poll, name='new'),
 ]

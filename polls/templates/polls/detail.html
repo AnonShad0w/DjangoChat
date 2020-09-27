@@ -11,7 +11,14 @@
     <link href="//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <p>Details</p>
+    <div class="page-header">
+        {% if user.is_authenticated %}
+        <a href="{% url 'polls:new' %}" class="top-menu"><span class="glyphicon glyphicon-plus"></span></a>
+        {% endif %}
+        <a href="{% url 'home' %}" class="top-menu"><span class="glyphicon glyphicon-home"></span></a>
+        <h1><a href="{% url 'polls:index' %}">Details</a></h1>
+    </div>
+    <div class="content">
     <h1>{{ question.question_text }}</h1>
     
     {% if error_message %}<p><strong>{{ error_message }}
@@ -26,5 +33,6 @@
     {% endfor %}
     <input type="submit" value="vote">
     </form>
+    </div>
   </body>
 </html>
