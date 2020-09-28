@@ -11,6 +11,7 @@ from .models import Question, Choice, VoterSelection
 from .forms import *
 
 class IndexView(generic.ListView):
+    
     template_name = 'polls/index.html'
     context_object_name = 'latest_question_list'
     
@@ -21,6 +22,7 @@ class IndexView(generic.ListView):
         return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
     
 class DetailView(generic.DetailView):
+    
     model = Question
     template_name = 'polls/detail.html'
     
@@ -31,10 +33,12 @@ class DetailView(generic.DetailView):
         return Question.objects.filter(pub_date__lte=timezone.now())
     
 class ResultsView(generic.DetailView):
+    
     model = Question
     template_name = 'polls/results.html'
 
 def vote(request, question_id):
+    
     question = get_object_or_404(Question, pk=question_id)
     user = request.user
     try:
@@ -64,16 +68,18 @@ def vote(request, question_id):
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
         
 def new_poll(request):
+    
     ChoiceFormSet = formset_factory(ChoiceForm, extra=3, min_num=2, validate_min=True)
     question_form = QuestionForm() # when a url is called initially it is GET method so you have to send a instance of form first (empty form)
     choice_form = ChoiceForm()
-    user = request.user
     
     if request.method == 'POST':
         form = QuestionForm(request.POST or None)
         formset = ChoiceFormSet(request.POST or None, request.FILES)
         if form.is_valid() and formset.is_valid():
-            new_poll = form.save()
+            new_poll = form.save(commit=False)
+            new_poll.author = request.user
+            new_poll.save()
             for inline_form in formset:
                 if inline_form.cleaned_data:
                     choice = inline_form.save(commit=False)
@@ -87,7 +93,6 @@ def new_poll(request):
     tmpl_vars = {
         'formset': formset,
         'form': form,
-        'user': user,
     }
         
     return render(request, 'polls/new.html', tmpl_vars)
