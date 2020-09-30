@@ -1,20 +1,59 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
-    <div class="post">
-        {% if post.published_date %}
-            <div class="date">
-                {{ post.published_date }}
+<div class="post">
+    {% if post.published_date %}
+        <div class="date">
+            {{ post.published_date }}
+        </div>
+    {% endif %}
+    <div>
+        <h2>{{ post.title }}</h2> Post Author: <strong>{{ post.author }}</strong>
+            <div>
+                <p>{{ post.text|linebreaksbr }}</p>
+                <div>
+                    {% if user.is_authenticated %}
+                        {% if post.author == request.user %}
+                            <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+                            <a class="btn btn-default" href=""><span class="glyphicon glyphicon-picture"></span></a>
+                            <a class="btn btn-default" href="{% url 'post_delete' pk=post.pk %}"><span class="glyphicon glyphicon-trash"></span></a>
+                        {% endif %}
+                    {% endif %}
+                    <div>
+                        <a class="btn btn-default" href="{% url 'new_comment' pk=post.pk %}"><span class="glyphicon glyphicon-comment"></span></a>
+                        {% if post.author != request.user %}
+                            <a class="btn btn-default" href=""><span class="glyphicon glyphicon-thumbs-up"></span></a>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-        {% endif %}
-        {% if user.is_authenticated %}
-            {% if post.author == request.user %}
-        <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
-        <a class="btn btn-default" href=""><span class="glyphicon glyphicon-picture"></span></a>
-        <a class="btn btn-default" href="{% url 'post_delete' pk=post.pk %}"><span class="glyphicon glyphicon-trash"></span></a>
-            {% endif %}
-        {% endif %}
-        <h2>{{ post.title }}</h2>
-        <p>{{ post.text|linebreaksbr }}</p>
     </div>
+    <br>
+</div>
+<div class="comment">
+{% for comment in post.comment.all %}
+    <div class="comment_date">
+        <p>{{ comment.published_date }}</p>
+        <div class="comment_author">
+            Commentor: <strong>{{ comment.author }}</strong>
+            <div class="comment_text">
+                <p>{{ comment.text|linebreaksbr }}</p>
+                    <div>
+                    {% if comment.author == request.user %}
+                        <a class="btn btn-default" href="{% url 'edit_comment' post.pk comment.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+                        <a class="btn btn-default" href="{% url 'delete_comment' post.pk comment.pk %}"><span class="glyphicon glyphicon-trash"></span></a>
+                    {% endif %}
+                        <div>
+                            {% if comment.author != request.user %}
+                                <a class="btn btn-default" href=""><span class="glyphicon glyphicon-thumbs-up"></span></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}

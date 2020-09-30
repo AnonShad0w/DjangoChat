@@ -32,7 +32,8 @@ class VoterSelection(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     voter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    
+    def __int__(self):
+        return self.question
     class Meta:
         unique_together = [
             ['question', 'voter'],

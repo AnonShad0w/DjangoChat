@@ -3,8 +3,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Post
-from .forms import PostForm, DeleteForm
+from .models import Post, Comment
+from .forms import PostForm, DeleteForm, CommentForm
 
 def post_list(request):
 	
@@ -61,7 +61,7 @@ def post_delete(request, pk):
 	post_to_delete = get_object_or_404(Post, pk=pk)
 	posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
 	
-	# process the form data
+	# process the submitted form data
 	if request.method == 'POST':
 		# create a form instance and populate it with data from the request
 		form = DeleteForm(request.POST)
@@ -79,6 +79,7 @@ def post_delete(request, pk):
 				# send to blog index page
 				return redirect('/blog/')
 	else:
+		# create an empty form instance
 		form = DeleteForm()	
 	return render(request, 'blog/post_delete.html', {'form': form})
 	
@@ -89,3 +90,71 @@ def post_delete(request, pk):
 		return HttpResponse("You are not the post author.", content_type="text/plain")
 	return render(request, 'blog/index.html', {'posts':posts})
 	"""
+
+def new_comment(request, pk):
+	
+	post = get_object_or_404(Post, pk=pk)
+	
+	if request.method == "POST":
+		form = CommentForm(request.POST)
+		if form.is_valid():
+			comment = form.save(commit=False)
+			comment.post=post
+			comment.author = request.user
+			comment.published_date = timezone.localtime(timezone.now())
+			comment.save()
+			return redirect('post_detail', pk=post.pk)
+	else:
+		form = CommentForm()
+	return render(request, 'blog/new_comment.html', {'form': form})
+	
+def edit_comment(request, pk, comment_id):
+
+	comment = Comment.objects.get(id=comment_id)
+	post = get_object_or_404(Post, pk=pk)
+
+	if comment.author == request.user:	
+		if request.method == "POST":
+			form = CommentForm(request.POST, instance=comment)
+			if form.is_valid():
+				comment = form.save(commit=False)
+				comment.author = request.user
+				comment.published_date = timezone.localtime(timezone.now())
+				comment.save()
+				return redirect('post_detail', pk=post.pk)
+		else:
+			form = CommentForm(instance=comment)
+	else:
+		return HttpResponse("You are not the comment author.", content_type="text/plain")
+
+	return render(request, 'blog/edit_comment.html', {'form': form})
+
+def delete_comment(request, pk, comment_id):
+	
+	comment = Comment.objects.get(id=comment_id)
+	post = get_object_or_404(Post, pk=pk)
+	
+	# process the submitted form data
+	if request.method == 'POST':
+		# create a form instance and populate it with data from the request
+		form = DeleteForm(request.POST)
+		# check whether it's valid
+		if form.is_valid():
+			# access the form data
+			selection = form.cleaned_data['yes_no']
+			# check if 'Yes' condition
+			if selection == 'True':
+				# delete the post
+				comment.delete()
+				return redirect('/blog/')
+			# if 'No' condition
+			else:
+				# send to blog index page
+				return redirect('/blog/')
+	else:
+		# create an empty form instance
+		form = DeleteForm()	
+	return render(request, 'blog/delete_comment.html', {'form': form})
+	
+def like_post(request, pk):
+	pass		

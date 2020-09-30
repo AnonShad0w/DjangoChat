@@ -8,10 +8,27 @@ class Post(models.Model):
 	text = models.TextField()
 	created_date = models.DateTimeField(default=timezone.now)
 	published_date = models.DateTimeField(blank=True, null=True)
+	likes = models.IntegerField(default=0)
+	
+	def publish(self):
+		self.published_date = timezone.now()
+		self.save()
+	
+	# Add a string representation of a model's object	
+	def __str__(self):
+		return self.title
+
+class Comment(models.Model):
+	author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+	post = models.ForeignKey(Post, related_name='comment', on_delete=models.CASCADE)
+	text = models.TextField()
+	created_date = models.DateTimeField(default=timezone.now)
+	published_date = models.DateTimeField(blank=True, null=True)
+	likes = models.IntegerField(default=0)
 	
 	def publish(self):
 		self.published_date = timezone.now()
 		self.save()
 		
 	def __str__(self):
-		return self.title
+		return self.text

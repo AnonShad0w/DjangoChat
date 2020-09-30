@@ -6,11 +6,10 @@ from .models import *
 class ChoiceInline(admin.TabularInline):
     model = Choice
     extra = 3
-"""
-class VoterSelectionInline(admin.ModelAdmin):
-    model = VoterSelection
-    fk_name = "voter"
-"""
+
+class VoterSelectionAdmin(admin.ModelAdmin):
+    list_display = ('question', 'choice', 'voter')
+
 class QuestionAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['question_text']}),
@@ -23,3 +22,4 @@ class QuestionAdmin(admin.ModelAdmin):
     search_fields = ['question_text']
 
 admin.site.register(Question, QuestionAdmin)
+admin.site.register(VoterSelection, VoterSelectionAdmin)

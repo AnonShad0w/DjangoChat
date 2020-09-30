@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.safestring import mark_safe
 
-from .models import Post
+from .models import Post, Comment
 
 class PostForm(forms.ModelForm):
 
@@ -19,4 +19,8 @@ class DeleteForm(forms.Form):
             widget=forms.RadioSelect(attrs={'class': "custom-radio-list"}),
             label='',choices=YES_NO_CHOICES)
     
+class CommentForm(forms.ModelForm):
     
+    class Meta:
+        model = Comment
+        fields = ('text',)
