@@ -1,3 +1,18 @@
+body {
+    padding: 15px;
+}
+
+h1 {
+    color: #000000;
+    font-family: 'Ubuntu';
+}
+
+p  {
+    color: #007BE7;
+    font-family: 'Lobster';
+    font-size: 14pt;
+}
+
 .page-header {
     background-color: #00FFEE;
     margin-top: 0;
@@ -14,22 +29,11 @@
     margin-left: 40px;
 }
 
-h1, h2, h3, h4 {
-    font-family: 'Lobster', cursive;
-}
-
-.date {
-    color: #828282;
-}
-
-.save {
-    float: right;
+h4 {
+    font-family: 'Ubuntu';
 }
 
 .top-menu, .top-menu:hover, .top-menu:visited {
-    color: #ffffff;
     float: right;
-    font-size: 26pt;
-    margin-right: 20px;
 }
 

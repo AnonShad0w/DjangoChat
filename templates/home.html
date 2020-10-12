@@ -3,15 +3,25 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-{% if user.is_authenticated %}
-  <h2>Hi {{ user.username }}!</h2>
-  <p><button type="submit"><a href="{% url 'logout' %}">Log Out</a></button></p>
-<header>
+<div>
+  {% if user.is_authenticated %}
+    <h2>Hi {{ user.username }}!</h2>
+    <button type="submit"><a href="{% url 'logout' %}" class="top-menu">Log Out</a></button>
+  <header>
+  {% endif %}
+</div>
+<div>
+  {% if user.is_authenticated %}
   <h4><a href="{% url 'chat:index' %}">Chat</a> | <a href="{% url 'polls:index' %}">Polls</a> | <a href="{% url 'index' %}">Blog</a></h4>
-</header>
-{% else %}
-  <p>You are not logged in</p>
-  <button type="submit"><a href="{% url 'login' %}">Log In</a></button> |
-  <button type="submit"><a href="{% url 'users:signup' %}">Sign Up</a></button>
-{% endif %}
+  {% else %}
+  <h4><a href="{% url 'polls:index' %}">Polls</a> | <a href="{% url 'index' %}">Blog</a></h4>
+  {% endif %}
+</div>
+<div>
+  <p>Please login or signup to access all website features.</p>
+  <div>
+    <button type="submit"><a href="{% url 'login' %}">Log In</a></button> |
+    <button type="submit"><a href="{% url 'users:signup' %}">Sign Up</a></button>
+  </div>
+</div>
 {% endblock %}

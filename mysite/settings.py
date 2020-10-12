@@ -40,9 +40,7 @@ INSTALLED_APPS = [
     # My Own Apps
     'chat.apps.ChatConfig',
     'channels',
-    'polls.apps.PollsConfig',
     'users.apps.UsersConfig',
-    'blog.apps.BlogConfig',
     
     # Default Apps
     'django.contrib.admin',
